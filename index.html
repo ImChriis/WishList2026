@@ -747,10 +747,6 @@ const sweeps=[[-40,-60,0],[38,-110,2.2],[-30,-170,4.1]].map(([x,z,p])=>{ const m
 // Bati-señal 3D
 // el haz sale del suelo y termina justo en el círculo de la señal, como el reflector real
 const beam=beamMesh(0xf5c518,19,62,0); beam.position.set(SIG.x-62*Math.sin(.36),SIG.y-62*Math.cos(.36),SIG.z-.5); beam.rotation.z=-.36; scene.add(beam);
-// óvalo de luz con el murciélago negro opaco en el centro
-const logoMat=new THREE.MeshBasicMaterial({map:new THREE.TextureLoader().load('img/signal.png'),transparent:true,opacity:0,
-  depthWrite:false,depthTest:false,fog:false});
-const logo=new THREE.Mesh(new THREE.PlaneGeometry(56,39.4),logoMat); logo.position.copy(SIG); logo.renderOrder=10; scene.add(logo);
 const sigGlow=new THREE.Sprite(new THREE.SpriteMaterial({map:radialTex('rgba(245,197,24,.6)','rgba(245,197,24,0)'),fog:false,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending,opacity:0}));
 sigGlow.scale.set(120,85,1); sigGlow.position.copy(SIG).z-=1; sigGlow.renderOrder=9; scene.add(sigGlow);
 // boca del reflector: disco de luz con el murciélago, pegado al final del haz
@@ -890,7 +886,6 @@ const rope=document.querySelector('.rope'), ropeFill=rope.querySelector('i'), ro
     b.g.lookAt(camera.position);
     const f=Math.sin(tm*b.flap+b.p)*.9; b.r.rotation.y=f; b.l.rotation.y=-f;
   });
-  logo.position.y=SIG.y+Math.sin(tm*1.2)*.8;
 
   renderer.render(scene,camera);
 
@@ -906,17 +901,15 @@ let on=false;
 function setSignal(v){
   on=v; sigBtn.setAttribute('aria-pressed',on);
   sigBtn.textContent=on?'Apagar la Bati-señal':'Encender la Bati-señal';
-  anime.remove([beam.material,logoMat,capMat,sigGlow.material,sig,logo.scale]);
+  anime.remove([beam.material,capMat,sigGlow.material,sig]);
   if(on){
     anime({targets:beam.material,opacity:[0,.3,.06,.22],duration:D(900),easing:'easeOutQuad'});
-    anime({targets:logoMat,opacity:[0,.5,.1,1],duration:D(1400),delay:D(250),easing:'easeOutQuad'});
     anime({targets:capMat,opacity:[0,.7,.2,1],duration:D(1100),delay:D(120),easing:'easeOutQuad'});
     anime({targets:sigGlow.material,opacity:.6,duration:D(1400),delay:D(250),easing:'easeOutQuad'});
-    anime({targets:logo.scale,x:[.3,1],y:[.3,1],duration:D(1600),delay:D(250),easing:'easeOutElastic(1,.6)'});
     anime({targets:sig,k:1,duration:D(2600),easing:'easeInOutQuad'});
     shake(.5);
   }else{
-    anime({targets:[beam.material,logoMat,capMat,sigGlow.material],opacity:0,duration:D(600),easing:'easeOutQuad'});
+    anime({targets:[beam.material,capMat,sigGlow.material],opacity:0,duration:D(600),easing:'easeOutQuad'});
     anime({targets:sig,k:0,duration:D(2000),easing:'easeInOutQuad'});
   }
 }
